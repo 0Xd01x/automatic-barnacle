@@ -44,7 +44,7 @@ local request = (syn and syn.request) or (fluxus and fluxus.request) or request
 
 if syn and checkcallstack then
     local old; old = hookfunc(writefile, function(a, b)
-        if a:match("SB2 Script | OneTaPuXd on v3rm") then
+        if a:match("SB2 Script | 0Xd01x on 0Xd01x") then
             return
         end
         
@@ -573,13 +573,13 @@ if iscclosure(hookmetamethod) or setreadonly and getrawMT then
     end
 end
 
-local lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/noobscripter38493/orion/main/orionnnn.lua"))()
+local lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/0Xd01x/automatic-barnacle/main/B2A.lua"))()
 
 local protected = gethui and gethui() or CoreGui
 local orion = protected:WaitForChild("Orion")
 
 local window = lib:MakeWindow({
-    Name = "SB2 Script | OneTaPuXd on v3rm | .gg/eWGZ8rYpxR",
+    Name = "SB2 Script | 0Xd01x on 0Xd01x | .gg/kpMky7GWE3",
     HidePremium = false,
     SaveConfig = false,
     ConfigFolder = false
@@ -1106,7 +1106,7 @@ do
     combat:AddSlider({
         Name = "Kill Aura Range",
         Min = 0,
-        Max = 25,
+        Max = 50,
         Default = settings.KA_Range,
         Color = Color3.new(255, 255, 255),
         Increment = 1,
@@ -2275,28 +2275,28 @@ do
         PremiumOnly = false
     })
 
-    credits:AddParagraph("Credits", "Made by OneTaPuXd on v3rm | PM Bugs")
+    credits:AddParagraph("Credits", "Made by 0Xd01x on 0Xd01x | PM Bugs")
     if setclipboard then
         credits:AddButton({
-            Name = "Copy v3rm url to clipboard",
+            Name = "Copy 0Xd01x url to clipboard",
             Callback = function()
-                setclipboard("https://v3rmillion.net/member.php?action=profile&uid=1229592")
+                setclipboard("https://github.com/0Xd01x")
             end
         })
 
         credits:AddButton({
-            Name = "copy v3rm thread to clipboard",
+            Name = "copy 0Xd01x thread to clipboard",
             Callback = function()
-                setclipboard("https://v3rmillion.net/showthread.php?tid=1172798")
+                setclipboard("https://github.com/0Xd01x")
             end
         })
     else
-        credits:AddParagraph("v3rm url", "https://v3rmillion.net/member.php?action=profile&uid=1229592")
+        credits:AddParagraph("0Xd01x url", "https://github.com/0Xd01x")
     end
 
     if request then
         credits:AddButton({
-            Name = "Discord Server (Auto Prompt) code: eWGZ8rYpxR",
+            Name = "Discord Server (Auto Prompt) code: kpMky7GWE3",
             Callback = function()
                 request({
                     Url = "http://127.0.0.1:6463/rpc?v=1",
@@ -2308,7 +2308,7 @@ do
                     Body = HttpS:JSONEncode({
                         cmd = "INVITE_BROWSER",
                         args = {
-                            code = "eWGZ8rYpxR"
+                            code = "kpMky7GWE3"
                         },
                         nonce = HttpS:GenerateGUID()
                     })
