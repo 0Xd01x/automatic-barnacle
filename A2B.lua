@@ -44,7 +44,7 @@ local request = (syn and syn.request) or (fluxus and fluxus.request) or request
 
 if syn and checkcallstack then
     local old; old = hookfunc(writefile, function(a, b)
-        if a:match("SB2 Script | 0Xd01x") then
+        if a:match("SB2 Script | OneTaPuXd on v3rm") then
             return
         end
         
@@ -579,8 +579,8 @@ local protected = gethui and gethui() or CoreGui
 local orion = protected:WaitForChild("Orion")
 
 local window = lib:MakeWindow({
-    Name = "B2A Script | 0Xd01x | .gg/kpMky7GWE3",
-    HidePremium = true,
+    Name = "SB2 Script | OneTaPuXd on v3rm | .gg/eWGZ8rYpxR",
+    HidePremium = false,
     SaveConfig = false,
     ConfigFolder = false
 })
@@ -2275,7 +2275,7 @@ do
         PremiumOnly = false
     })
 
-    credits:AddParagraph("Credits", "Made by 0Xd01x | PM Bugs")
+    credits:AddParagraph("Credits", "Made by OneTaPuXd on v3rm | PM Bugs")
     if setclipboard then
         credits:AddButton({
             Name = "Copy v3rm url to clipboard",
@@ -2296,7 +2296,7 @@ do
 
     if request then
         credits:AddButton({
-            Name = "Discord Server (Auto Prompt) code: kpMky7GWE3",
+            Name = "Discord Server (Auto Prompt) code: eWGZ8rYpxR",
             Callback = function()
                 request({
                     Url = "http://127.0.0.1:6463/rpc?v=1",
@@ -2308,7 +2308,7 @@ do
                     Body = HttpS:JSONEncode({
                         cmd = "INVITE_BROWSER",
                         args = {
-                            code = "kpMky7GWE3"
+                            code = "eWGZ8rYpxR"
                         },
                         nonce = HttpS:GenerateGUID()
                     })
