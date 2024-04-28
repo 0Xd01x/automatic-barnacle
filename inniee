@@ -1,5 +1,4 @@
-; dolphSol Static Data
-;   This data may update more than the macro itself, and is updated upon startup
+; INNIEE 0Xd01x
 
 [Options]
 latestVersion=v1.3.5
