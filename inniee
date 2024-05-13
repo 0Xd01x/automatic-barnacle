@@ -1,7 +1,7 @@
 [{
     "announcement":"Kuyraisus!",
     "updateInfo": {
-        "latestVersion":"0xd01x",
+        "latestVersion":"v1.4 pre",
         "versionLink":"https://github.com/0xd01x/",
         "updateNotes":"- Testing version of the new macro, obby is still not functional yet."
     },
