@@ -1,8 +1,8 @@
 [{
     "announcement":"Kuy update version",
     "updateInfo": {
-        "latestVersion":"0xd01x",
-        "versionLink":"https://github.com/0xd01x",
+        "latestVersion":"v1.4 pre",
+        "versionLink":"https://github.com/0xd01x/automatic-barnacle/",
         "updateNotes":"- Testing version of the new macro, obby is still not functional yet."
     },
     "stars": {
