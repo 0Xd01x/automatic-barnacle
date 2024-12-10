@@ -36,7 +36,7 @@ if _G.innie then
 end
 
 local exec = identifyexecutor()
-if string.match(exec, "ESP") == nil and string.match(exec, "Macsploit") == nil and string.match(exec, "Seliware") == nil and string.match(exec, "Wave") == nil and string.match(exec, "Nihon") == nil and string.match(exec, "AWP") == nil then
+if string.match(exec, "Synapse") == nil and string.match(exec, "Macsploit") == nil and string.match(exec, "Seliware") == nil and string.match(exec, "Wave") == nil and string.match(exec, "Nihon") == nil and string.match(exec, "AWP") == nil then
 
     local reqtest = pcall(function()
         require(game.ReplicatedStorage.Modules.FPS)
