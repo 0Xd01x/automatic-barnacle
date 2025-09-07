@@ -1,6 +1,26 @@
---wait (10) --time to run
-game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("Rebirth"):FireServer()   --Rebirth
--- Combined Auto Pickup (Configurable), Boss Hunt and Combat Script with Auto Rebirth Before Kick
+-- INNIE HUB - SIMPLE AUTO REJOIN SCRIPT
+print("🔥 Starting INNIE HUB Auto Script")
+
+-- ============== SIMPLE AUTO-EXECUTION METHOD ==============
+-- Check if this is auto execution
+if not _G.INNIE_HUB_FIRST_RUN then
+    _G.INNIE_HUB_FIRST_RUN = true
+    print("📋 First run detected")
+else
+    print("🚀 Auto execution detected!")
+end
+
+-- Prevent multiple instances
+if _G.INNIE_HUB_RUNNING then
+    print("⚠️ Script already running, stopping duplicate...")
+    return
+end
+_G.INNIE_HUB_RUNNING = true
+
+print("🔄 Initializing script...")
+wait(2)
+
+-- Main script execution
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local VirtualInputManager = game:GetService("VirtualInputManager")
@@ -10,13 +30,16 @@ local LocalPlayer = Players.LocalPlayer
 
 print("🔥 Starting Combined Script - Following Exact Sequence")
 
+-- Initial rebirth
+game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("Rebirth"):FireServer()
+
 -- ============== INSTANT KICK TIMER SETUP ==============
 print("🚨 INSTANT KICK TIMER ACTIVATED")
 print("⏰ Player will be kicked within 18 seconds...")
 
 -- Start countdown timer
 local kickTimer = 18
-local autoRebirthTimer = 10 -- Auto rebirth 20 seconds before kick (700-20=680)
+local autoRebirthTimer = 10
 local kickConnection
 local rebirthExecuted = true
 
@@ -35,14 +58,53 @@ local function executeRebirth()
     end
 end
 
--- Function to rejoin game
+-- Simple rejoin function
 local function rejoinGame()
-    -- Kicks you
-    LocalPlayer:Kick("Rejoining...")
-    -- Waits a moment then rejoins
-    task.wait(1)
-    TeleportService:Teleport(game.PlaceId, LocalPlayer)
+    print("🔄 Rejoining server...")
+    _G.INNIE_HUB_RUNNING = false
+    
+    -- Store auto execution flag
+    _G.INNIE_HUB_AUTO_REJOIN = true
+    
+    -- Simple rejoin
+    spawn(function()
+        wait(1)
+        TeleportService:Teleport(game.PlaceId, LocalPlayer)
+    end)
+    
+    LocalPlayer:Kick("🔄 Auto rejoining server...")
 end
+
+-- Setup auto execution on game join
+spawn(function()
+    -- Wait for game to fully load
+    wait(5)
+    
+    -- Check if this is an auto rejoin
+    if _G.INNIE_HUB_AUTO_REJOIN then
+        print("🚀 Auto rejoin detected! Restarting script...")
+        _G.INNIE_HUB_AUTO_REJOIN = false
+        _G.INNIE_HUB_RUNNING = false
+        
+        wait(2)
+        -- Restart the script
+        loadstring(game:HttpGet("https://pastebin.com/raw/YOUR_SCRIPT_URL"))()
+        -- Note: You'll need to upload this script to pastebin and replace YOUR_SCRIPT_URL
+        -- Or use the local restart method below:
+        
+        -- Local restart method
+        _G.INNIE_HUB_RUNNING = false
+        wait(1)
+        loadstring([[
+            _G.INNIE_HUB_RUNNING = false
+            wait(1)
+            -- Re-run this entire script
+            ]] .. string.dump(function()
+                -- Insert the main script code here for local execution
+                print("🔄 Local auto restart...")
+            end))()
+    end
+end)
 
 kickConnection = RunService.Heartbeat:Connect(function()
     kickTimer = kickTimer - RunService.Heartbeat:Wait()
@@ -52,18 +114,17 @@ kickConnection = RunService.Heartbeat:Connect(function()
         print("⏳ Kicking in: " .. math.ceil(kickTimer) .. " seconds")
     end
     
-    -- Auto rebirth check (20 seconds before kick)
+    -- Auto rebirth check
     if kickTimer <= autoRebirthTimer and not rebirthExecuted then
         rebirthExecuted = true
-        print("🔄 AUTO REBIRTH TRIGGERED! (20 seconds before kick)")
+        print("🔄 AUTO REBIRTH TRIGGERED!")
         local rebirthSuccess = executeRebirth()
         
         if rebirthSuccess then
             print("✅ Auto rebirth completed successfully!")
-            print("⏳ Waiting for kick timer to complete...")
         else
             print("❌ Auto rebirth failed! Will try again at kick time...")
-            rebirthExecuted = false -- Allow retry at kick time
+            rebirthExecuted = false
         end
     end
     
@@ -72,7 +133,6 @@ kickConnection = RunService.Heartbeat:Connect(function()
         kickConnection:Disconnect()
         print("👋 KICKING PLAYER NOW!")
         
-        -- Try rebirth one more time if it wasn't successful earlier
         if not rebirthExecuted then
             print("🔄 Attempting final rebirth before kick...")
             executeRebirth()
@@ -80,48 +140,37 @@ kickConnection = RunService.Heartbeat:Connect(function()
         end
         
         rejoinGame()
-        return -- Exit script completely
+        return
     end
 end)
 
--- ============== CONFIG PACKUP SYSTEM ==============
-print("⚙️ Loading Config Packup System...")
-
+-- ============== CONFIG SYSTEMS ==============
 local ConfigPackup = {
-    ["Essence"] = true, ---EXP
-    ["Raw Meat"] = fast, -- Changed from 'fast' to true
-    ["Spirit Key"] = fast, -- Changed from 'fast' to true
-    ["Raw Gold"] = true,   ---Gold
-    ["Big Raw Gold"] = true,  ---Gold
-    ["Raw Magnetite"] = fast, -- Changed from 'fast' to true
-    ["Big Raw Magnetite"] = fast -- Changed from 'fast' to true
+    ["Essence"] = true,
+    ["Raw Meat"] = true,
+    ["Spirit Key"] = true,
+    ["Raw Gold"] = true,
+    ["Big Raw Gold"] = true,
+    ["Raw Magnetite"] = true,
+    ["Big Raw Magnetite"] = true
 }
--- ============== CONFIG DELA SYSTEM ==============
 
 local ConfigTeleport = {
-    ["DelayAfterTP"] = 1,        -- Delay after teleporting to boss
-    ["DelayBeforePinkGiant"] = 4, -- Delay before Pink Giant
-    ["DelayAfterEquip"] = 0.01,   -- Delay after equipping tool
-    ["DelayAfterDropCollection"] = 0.001, -- Delay after collecting drops
-    ["KickPlayer"] = 18,         -- ⏰ Player kick timer (seconds)
-    ["AutoRebirthDelay"] = 20    -- 🔄 Auto rebirth delay before kick (seconds)
+    ["DelayAfterTP"] = 1,
+    ["DelayBeforePinkGiant"] = 4,
+    ["DelayAfterEquip"] = 0.01,
+    ["DelayAfterDropCollection"] = 0.001,
+    ["KickPlayer"] = 18,
+    ["AutoRebirthDelay"] = 20
 }
 
-print("📋 Config Packup Settings:")
-for itemType, enabled in pairs(ConfigPackup) do
-    print("   " .. (enabled and "✅" or "❌") .. " " .. itemType .. ": " .. (enabled and "Enabled" or "Disabled"))
-end
+print("📋 Config loaded successfully")
 
-print("🔄 Auto Rebirth will trigger " .. ConfigTeleport["AutoRebirthDelay"] .. " seconds before kick")
-
--- ============== PRE-STEP: INITIAL FAST PICKUP ==============
-print("🚀 PRE-STEP: Running Initial Fast Pickup...")
-
--- Wait for Events and Pickup to be ready
+-- Wait for Events and Pickup
 local Events = ReplicatedStorage:WaitForChild("Events")
 local PickupRemote = Events:WaitForChild("Pickup")
 
--- Function to check if item should be picked up based on config
+-- Function to check if item should be picked up
 local function shouldPickupItem(itemName)
     local lowerItemName = string.lower(itemName)
     
@@ -133,11 +182,10 @@ local function shouldPickupItem(itemName)
             end
         end
     end
-    
     return false, nil
 end
 
--- Fast pickup function with reduced delays
+-- Fast pickup function
 local function fastPickupAllItems()
     local itemsFolder = workspace:FindFirstChild("Important")
     if not itemsFolder then return end
@@ -146,7 +194,6 @@ local function fastPickupAllItems()
     if not items then return end
     
     local pickupCount = 0
-    print("🔥 Starting FAST pickup scan...")
     
     for _, item in pairs(items:GetChildren()) do
         if item:IsA("BasePart") or item:IsA("Model") then
@@ -154,7 +201,7 @@ local function fastPickupAllItems()
             
             if shouldPickup then
                 spawn(function()
-                    local success, result = pcall(function()
+                    local success = pcall(function()
                         local args = {item}
                         return PickupRemote:InvokeServer(unpack(args))
                     end)
@@ -164,34 +211,32 @@ local function fastPickupAllItems()
                         print("⚡ Fast pickup " .. itemType .. ":", item.Name)
                     end
                 end)
-                wait(0.01) -- Very fast delay
+                wait(0.01)
             end
         end
     end
     
-    print("🎯 Fast pickup scan completed! Items processed:", pickupCount)
+    print("🎯 Fast pickup completed! Items processed:", pickupCount)
 end
 
--- Run initial fast pickup 3 times
+-- ============== PRE-STEP: INITIAL FAST PICKUP ==============
+print("🚀 PRE-STEP: Running Initial Fast Pickup...")
+
 for i = 1, 3 do
-    -- Check if kick timer expired
     if kickTimer <= 0 then break end
-    
     print("🔄 Fast pickup round", i .. "/3")
     fastPickupAllItems()
-    wait(0.5) -- Short wait between rounds
+    wait(0.5)
 end
 
-print("✅ PRE-STEP COMPLETED: Initial fast pickup finished!")
+print("✅ PRE-STEP COMPLETED!")
 wait(1)
 
--- Check if still alive after wait
 if kickTimer <= 0 then return end
 
 -- ============== STEP 1: CONTINUOUS AUTO PICKUP ==============
-print("💎 STEP 1: Starting Continuous Auto Pickup System...")
+print("💎 STEP 1: Starting Continuous Auto Pickup...")
 
--- Regular pickup function for continuous operation
 local function pickupConfiguredItems()
     local itemsFolder = workspace:FindFirstChild("Important")
     if not itemsFolder then return end
@@ -205,7 +250,7 @@ local function pickupConfiguredItems()
             
             if shouldPickup then
                 spawn(function()
-                    local success, result = pcall(function()
+                    local success = pcall(function()
                         local args = {item}
                         return PickupRemote:InvokeServer(unpack(args))
                     end)
@@ -214,24 +259,24 @@ local function pickupConfiguredItems()
                         print("🔄 Continuous pickup " .. itemType .. ":", item.Name)
                     end
                 end)
-                wait(0.05) -- Faster continuous pickup
+                wait(0.05)
             end
         end
     end
 end
 
--- Setup faster continuous Auto Pickup loop
+-- Setup continuous Auto Pickup loop
 local autoPickupEnabled = true
 spawn(function()
     while autoPickupEnabled and kickTimer > 0 do
         pickupConfiguredItems()
-        wait(1) -- Faster continuous scan (was 2 seconds, now 1 second)
+        wait(1)
     end
 end)
 
-print("✅ STEP 1 COMPLETED: Continuous Auto Pickup System is running!")
+print("✅ STEP 1 COMPLETED!")
 
--- ============== STEP 2: EXECUTING KEY SEQUENCE ==============
+-- ============== STEP 2: KEY SEQUENCE ==============
 print("🔑 STEP 2: Executing Key Sequence...")
 
 local function pressKey(keyCode)
@@ -240,7 +285,6 @@ local function pressKey(keyCode)
     VirtualInputManager:SendKeyEvent(false, keyCode, false, game)
 end
 
--- Key sequence order
 local keySequence = {
     {key = Enum.KeyCode.BackSlash, delay = 0.001},
     {key = Enum.KeyCode.Down, delay = 0.001},
@@ -256,18 +300,15 @@ local keySequence = {
 }
 
 for i, keyData in ipairs(keySequence) do
-    -- Check if kick timer expired
     if kickTimer <= 0 then break end
-    
     pressKey(keyData.key)
     wait(keyData.delay)
     print("🔹 Pressed key:", keyData.key.Name)
 end
 
-print("✅ STEP 2 COMPLETED: Key sequence executed!")
+print("✅ STEP 2 COMPLETED!")
 wait(2)
 
--- Check if still alive after wait
 if kickTimer <= 0 then return end
 
 -- ============== STEP 3: EQUIP TOOL AND ATTACK SETUP ==============
@@ -277,15 +318,14 @@ local function TP(Pos)
     local character = game.Players.LocalPlayer.Character
     if character and character:FindFirstChild("HumanoidRootPart") then
         character.HumanoidRootPart.CFrame = Pos
-        print("📍 Successfully teleported to:", Pos)
+        print("📍 Successfully teleported")
     else
-        warn("❌ Cannot teleport - Character or HumanoidRootPart not found")
+        warn("❌ Cannot teleport - Character not found")
     end
 end
 
--- Function to equip tool
 local function equipTool()
-    local success, result = pcall(function()
+    local success = pcall(function()
         local args = {1}
         ReplicatedStorage:WaitForChild("Events"):WaitForChild("EquipTool"):FireServer(unpack(args))
     end)
@@ -294,12 +334,11 @@ local function equipTool()
         print("⚔️ Tool equipped successfully")
         return true
     else
-        warn("❌ Failed to equip tool:", result)
+        warn("❌ Failed to equip tool")
         return false
     end
 end
 
--- Function to attack target
 local function attackTarget(target)
     if not target or not target:FindFirstChild("HumanoidRootPart") then
         return false
@@ -310,7 +349,7 @@ local function attackTarget(target)
         return false
     end
     
-    local success, result = pcall(function()
+    local success = pcall(function()
         local args = {
             {
                 ["[870.1816,-673.9194,831.3134,-1,0,0,0,0.9997,0.0232,0,0.0232,-0.9997]"] = target,
@@ -325,13 +364,12 @@ local function attackTarget(target)
     return success
 end
 
--- Equip tool first
 local toolEquipped = equipTool()
 wait(ConfigTeleport["DelayAfterEquip"])
 
-print("✅ STEP 3 COMPLETED: Tool equipped and attack system ready!")
+print("✅ STEP 3 COMPLETED!")
 
--- ============== STEP 4: TP QUEEN ANT AND CHECK SUCCESS ==============
+-- ============== STEP 4: QUEEN ANT ==============
 print("👑 STEP 4: TP Queen Ant and Kill...")
 
 local queenAntCompleted = false
@@ -342,11 +380,9 @@ if critters and kickTimer > 0 then
     if queenAnt and queenAnt:FindFirstChild("HumanoidRootPart") then
         print("👑 Queen Ant found! Teleporting...")
         
-        -- Teleport to Queen Ant
         TP(queenAnt.HumanoidRootPart.CFrame)
         wait(1)
         
-        -- Re-equip tool if needed
         if not toolEquipped then
             equipTool()
             wait(0.5)
@@ -364,7 +400,6 @@ if critters and kickTimer > 0 then
             wait(0.1)
         end
         
-        -- Check if Queen Ant is killed
         if not queenAnt.Parent or not queenAnt:FindFirstChild("HumanoidRootPart") then
             queenAntCompleted = true
             print("🏆 STEP 4 SUCCESS: Queen Ant killed!")
@@ -375,42 +410,87 @@ if critters and kickTimer > 0 then
         print("❌ STEP 4 FAILED: Queen Ant not found")
     end
 else
-    print("❌ STEP 4 FAILED: Critters folder not found or kick timer expired")
+    print("❌ STEP 4 FAILED: Critters folder not found")
 end
 
--- Only proceed to step 5 if step 4 is completed and timer hasn't expired
+-- ============== STEP 5: PINK GIANT ==============
 if queenAntCompleted and kickTimer > 0 then
-    print("✅ Queen Ant quest completed! Proceeding to Pink Giant...")
-    
-    -- ============== STEP 5: TP PINK GIANT AND CHECK SUCCESS ==============
+    print("✅ Queen Ant completed! Proceeding to Pink Giant...")
     print("🌸 STEP 5: TP Pink Giant and Kill...")
     
-    -- Add 3 second delay before Pink Giant
-    print("⏳ Waiting 3 seconds before Pink Giant...")
-    wait(3.5)
+    print("⏳ Waiting " .. ConfigTeleport["DelayBeforePinkGiant"] .. " seconds...")
+    wait(ConfigTeleport["DelayBeforePinkGiant"])
     
     local pinkGiantCompleted = false
     
-    if critters and kickTimer > 0 then
-        local pinkGiant = critters:FindFirstChild("Pink Giant")
+    -- Enhanced Pink Giant search
+    local function findPinkGiant()
+        if critters then
+            local pinkGiant = critters:FindFirstChild("Pink Giant")
+            if pinkGiant and pinkGiant:FindFirstChild("HumanoidRootPart") then
+                return pinkGiant
+            end
+        end
+        
+        -- Search in Important folder
+        local importantFolder = workspace:FindFirstChild("Important")
+        if importantFolder then
+            for _, folder in pairs(importantFolder:GetChildren()) do
+                if folder:IsA("Folder") then
+                    local pinkGiant = folder:FindFirstChild("Pink Giant")
+                    if pinkGiant and pinkGiant:FindFirstChild("HumanoidRootPart") then
+                        print("🔍 Found Pink Giant in:", folder.Name)
+                        return pinkGiant
+                    end
+                end
+            end
+        end
+        
+        return nil
+    end
+    
+    if kickTimer > 0 then
+        print("🔍 Searching for Pink Giant...")
+        local pinkGiant = findPinkGiant()
+        
         if pinkGiant and pinkGiant:FindFirstChild("HumanoidRootPart") then
-            print("🌸 Pink Giant found! Teleporting...")
+            print("🌸 Pink Giant found!")
             
-            -- Teleport to Pink Giant
-            TP(pinkGiant.HumanoidRootPart.CFrame)
-            wait(1)
+            -- Multiple teleport attempts
+            for i = 1, 3 do
+                print("🚀 Teleport attempt " .. i .. "/3")
+                TP(pinkGiant.HumanoidRootPart.CFrame)
+                wait(1)
+                
+                local player = Players.LocalPlayer
+                if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                    local distance = (player.Character.HumanoidRootPart.Position - pinkGiant.HumanoidRootPart.Position).Magnitude
+                    print("📏 Distance:", math.floor(distance))
+                    if distance < 50 then
+                        print("✅ Successful teleport!")
+                        break
+                    end
+                end
+            end
             
-            -- Equip tool 2 times as requested
-            print("⚔️ Equipping tool (1st time)...")
+            -- Equip tool twice
+            print("⚔️ Equipping tools...")
             equipTool()
             wait(0.5)
-            print("⚔️ Equipping tool (2nd time)...")
             equipTool()
             wait(0.5)
             
             print("⚔️ Starting Pink Giant kill sequence...")
             local attackCount = 0
+            
             while pinkGiant.Parent and pinkGiant:FindFirstChild("HumanoidRootPart") and attackCount < 500 and kickTimer > 0 do
+                -- Re-position every 50 attacks
+                if attackCount > 0 and attackCount % 50 == 0 then
+                    print("🔄 Re-positioning...")
+                    TP(pinkGiant.HumanoidRootPart.CFrame)
+                    wait(0.2)
+                end
+                
                 if attackTarget(pinkGiant) then
                     attackCount = attackCount + 1
                     if attackCount % 20 == 0 then
@@ -420,12 +500,11 @@ if queenAntCompleted and kickTimer > 0 then
                 wait(0.1)
             end
             
-            -- Check if Pink Giant is killed
             if not pinkGiant.Parent or not pinkGiant:FindFirstChild("HumanoidRootPart") then
-                print("🏆 Pink Giant killed! Now collecting drops...")
+                print("🏆 Pink Giant killed! Collecting drops...")
                 
-                -- Function to collect Pink Giant drops
-                local function collectPinkGiantDrops()
+                -- Collect drops
+                local function collectDrops()
                     local itemsFolder = workspace:FindFirstChild("Important")
                     if not itemsFolder then return 0 end
                     
@@ -439,14 +518,14 @@ if queenAntCompleted and kickTimer > 0 then
                             
                             if shouldPickup then
                                 spawn(function()
-                                    local success, result = pcall(function()
+                                    local success = pcall(function()
                                         local args = {item}
                                         return PickupRemote:InvokeServer(unpack(args))
                                     end)
                                     
                                     if success then
                                         dropCount = dropCount + 1
-                                        print("💎 Collected Pink Giant drop " .. itemType .. ":", item.Name)
+                                        print("💎 Collected " .. itemType .. ":", item.Name)
                                     end
                                 end)
                                 wait(0.05)
@@ -456,57 +535,48 @@ if queenAntCompleted and kickTimer > 0 then
                     return dropCount
                 end
                 
-                -- Collect drops multiple times to ensure we get everything
-                print("🔄 Starting Pink Giant drop collection phase...")
                 local totalDrops = 0
                 for i = 1, 5 do
                     if kickTimer <= 0 then break end
                     print("📦 Collection round " .. i .. "/5")
-                    local roundDrops = collectPinkGiantDrops()
-                    totalDrops = totalDrops + roundDrops
-                    wait(1) -- Wait between collection rounds
+                    totalDrops = totalDrops + collectDrops()
+                    wait(1)
                 end
                 
-                print("✅ Pink Giant drop collection completed! Total items collected:", totalDrops)
-                print("⏳ Waiting " .. ConfigTeleport["DelayAfterDropCollection"] .. " seconds to ensure all drops are collected...")
-                wait(ConfigTeleport["DelayAfterDropCollection"])
-                
+                print("✅ Drop collection completed! Total:", totalDrops)
                 pinkGiantCompleted = true
-                print("🏆 STEP 5 SUCCESS: Pink Giant killed and drops collected!")
+                print("🏆 STEP 5 SUCCESS!")
             else
                 print("⚠️ STEP 5 FAILED: Pink Giant still alive")
             end
         else
             print("❌ STEP 5 FAILED: Pink Giant not found")
         end
-    else
-        print("❌ STEP 5 FAILED: Critters folder not found or kick timer expired")
     end
     
-    -- ============== STEP 6: CHECK BOTH QUESTS AND EARLY REJOIN ==============
+    -- ============== FINAL CHECK ==============
     if queenAntCompleted and pinkGiantCompleted and kickTimer > 0 then
-        print("🎉 STEP 6: BOTH QUESTS COMPLETED!")
-        print("📋 Final Quest Status:")
-        print("   ✅ Step 4 - Queen Ant: COMPLETED")
-        print("   ✅ Step 5 - Pink Giant: COMPLETED")
-        print("   ✅ Both quests: SUCCESS")
-        
-        print("🏆 All quests completed! Executing final rebirth and rejoining game!")
+        print("🎉 BOTH QUESTS COMPLETED!")
+        print("🏆 All quests completed! Final rebirth and rejoining...")
         executeRebirth()
         wait(2)
-        kickConnection:Disconnect() -- Stop the timer
+        kickConnection:Disconnect()
         rejoinGame()
     else
-        print("❌ STEP 6: NOT ALL QUESTS COMPLETED")
-        print("📋 Final Quest Status:")
-        print("   " .. (queenAntCompleted and "✅" or "❌") .. " Step 4 - Queen Ant: " .. (queenAntCompleted and "COMPLETED" or "FAILED"))
-        print("   " .. (pinkGiantCompleted and "✅" or "❌") .. " Step 5 - Pink Giant: " .. (pinkGiantCompleted and "COMPLETED" or "FAILED"))
-        print("🔄 Player will be rejoined when timer expires...")
+        print("❌ NOT ALL QUESTS COMPLETED")
+        print("📋 Status: Queen Ant:" .. (queenAntCompleted and "✅" or "❌") .. " Pink Giant:" .. (pinkGiantCompleted and "✅" or "❌"))
     end
 else
-    print("❌ Queen Ant quest failed or timer expired - Skipping Pink Giant")
-    print("🔄 Player will be rejoined when timer expires...")
+    print("❌ Queen Ant failed - Skipping Pink Giant")
 end
 
-print("🎯 Script execution completed following exact sequence!")
-print("⏳ Kick timer will continue running with auto rebirth feature...")
+print("🎯 Script execution completed!")
+
+-- ============== MANUAL AUTO-RESTART INSTRUCTIONS ==============
+print("📝 MANUAL RESTART INSTRUCTIONS:")
+print("🔄 To enable auto-restart, you need to:")
+print("1️⃣ Upload this script to Pastebin")
+print("2️⃣ Get the RAW link")
+print("3️⃣ Replace the HttpGet line with your link")
+print("4️⃣ Or use loadstring with your executor's auto-execute feature")
+print("💡 Example: loadstring(game:HttpGet('YOUR_PASTEBIN_RAW_LINK'))()")
